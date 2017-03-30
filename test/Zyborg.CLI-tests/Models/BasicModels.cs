@@ -105,7 +105,7 @@ namespace Zyborg.CLI.Binder.Models
     {
         public bool _onInitInvoked;
         
-        public void OnInit()
+        public void Model_OnInit()
         {
             _onInitInvoked = true;
         }
@@ -116,7 +116,7 @@ namespace Zyborg.CLI.Binder.Models
         public bool _onInitInvoked;
         public CommandLineApplication _onInitParam;
 
-        public void OnInit(CommandLineApplication cla)
+        public void Model_OnInit(CommandLineApplication cla)
         {
             _onInitInvoked = true;
             _onInitParam = cla;
@@ -127,7 +127,7 @@ namespace Zyborg.CLI.Binder.Models
     {
         public bool _onExecInvoked;
         
-        public void OnExec()
+        public void Model_OnExec()
         {
             _onExecInvoked = true;
         }
@@ -138,7 +138,7 @@ namespace Zyborg.CLI.Binder.Models
         public bool _onExecInvoked;
         public CommandLineApplication _onExecParam;
 
-        public void OnExec(CommandLineApplication cla)
+        public void Model_OnExec(CommandLineApplication cla)
         {
             _onExecInvoked = true;
             _onExecParam = cla;
@@ -152,7 +152,7 @@ namespace Zyborg.CLI.Binder.Models
         public bool _onExecInvoked;
         public CommandLineApplication _onExecParam;
 
-        public int OnExec(CommandLineApplication cla)
+        public int Model_OnExec(CommandLineApplication cla)
         {
             _onExecInvoked = true;
             _onExecParam = cla;

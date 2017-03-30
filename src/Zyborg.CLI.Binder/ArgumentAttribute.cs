@@ -6,15 +6,18 @@ namespace Zyborg.CLI.Binder
             Inherited = false, AllowMultiple = false)]
     public sealed class ArgumentAttribute : Attribute
     {
-        public ArgumentAttribute (string description)
+        public ArgumentAttribute()
+        { }
+
+        public ArgumentAttribute(string description)
         {
             Description = description;
         }
 
-        public ArgumentAttribute(string description, string name)
+        public ArgumentAttribute(string name, string description)
         {
-            Description = name;
             Name = name;
+            Description = name;
         }
 
         public string Name

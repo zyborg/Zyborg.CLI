@@ -21,7 +21,7 @@ namespace Zyborg.CLI.Binder
         /// The method name should match exactly and the method should take a single
         /// parameter of type <see cref="CommandLineApplication"/>.
         /// </summary>
-        public const string OnInitMethodName = "OnInit";
+        public const string OnInitMethodName = "Model_OnInit";
         /// <summary>
         /// Name of optional method on the model class that would get invoked
         /// after executing CLI parsing.
@@ -30,7 +30,7 @@ namespace Zyborg.CLI.Binder
         /// The method name should match exactly and the method should take a single
         /// parameter of type <see cref="CommandLineApplication"/>.
         /// </summary>
-        public const string OnExecMethodName = "OnExec";
+        public const string OnExecMethodName = "Model_OnExec";
         /// <summary>
         /// Suffix used to compute the name of optional methods on the model class that would
         /// get invoked after configing bound members.
@@ -47,7 +47,7 @@ namespace Zyborg.CLI.Binder
         ///   <item>RemainingArguments - <see cref="CommandLineApplication"/></item>
         /// </list>
         /// </summary>
-        public const string OnConfigureMethodSuffix = "_OnConfigure";
+        public const string OnBindMethodSuffix = "_OnBind";
 
         #endregion -- Constants --
         
@@ -55,10 +55,10 @@ namespace Zyborg.CLI.Binder
         
         internal static readonly Type[] OnInitParams = new[] { typeof(CommandLineApplication) };
         internal static readonly Type[] OnExecParams = OnInitParams;
-        internal static readonly Type[] OnConfigureOptionParams = new[] { typeof(CommandOption) };
-        internal static readonly Type[] OnConfigureArgumentParams = new[] { typeof(CommandArgument) };
-        internal static readonly Type[] OnConfigureRemainingArgumentsParams = OnInitParams;
-        internal static readonly Type[] OnConfigureCommandParams = OnInitParams;
+        internal static readonly Type[] OnBindOptionParams = new[] { typeof(CommandOption) };
+        internal static readonly Type[] OnBindArgumentParams = new[] { typeof(CommandArgument) };
+        internal static readonly Type[] OnBindRemainingArgumentsParams = OnInitParams;
+        internal static readonly Type[] OnBindCommandParams = OnInitParams;
 
         internal static readonly object[] EmptyValues = new object[0];
 
@@ -125,7 +125,6 @@ namespace Zyborg.CLI.Binder
 
         internal int PostExec()
         {
-//!Console.WriteLine("PostExec - " + this._cla.Name);
             _executed = true;
             foreach (var action in _postExecActions)
                 action();
@@ -199,7 +198,6 @@ namespace Zyborg.CLI.Binder
 
             binding._cla.OnExecute(() =>
             {
-//!Console.WriteLine("OnEXEC - " + binding._cla.Name);
                 return binding.PostExec();
             });
 
@@ -307,16 +305,22 @@ namespace Zyborg.CLI.Binder
                 return;
             }
 
-//!Console.WriteLine("    Cmd = " + cmdName + ", " + a.ThrowOnUnexpectedArg);
-            var subCla = binding._cla.Command(cmdName, x => { }, a.ThrowOnUnexpectedArg);
-            var subBindingType = typeof(CommandLineBinding<>).MakeGenericType(cmdType);
+            // See if there is an optional configuration method for this sub-command
+            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
+            var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
+                    onConfigName, OnBindCommandParams);
 
-            //var subModel = Apply(default(T), subCla);
+            // Add the option based on whether there is a config method
+            Action<CommandLineApplication> configAction = cla => { };
+            if (onConfigMeth != null)
+                configAction = cla => onConfigMeth.Invoke(binding.GetModel(), new[] { cla });
+
+            var subCla = binding._cla.Command(cmdName, configAction, a.ThrowOnUnexpectedArg);
+            var subBindingType = typeof(CommandLineBinding<>).MakeGenericType(cmdType);
 
             // When a sub-command is specified, its OnExecute handler is invoked instead of the
             // parent's so we inject a post-exec action to invoke the parent's post-exec actions
             Action parentPostExec = () => binding.PostExec();
-            //var subModel = (CommandLineModel)subModelBuild.Invoke(null, new object[] { subCla, parentPostExec});
             var subBinding = CommandLineBinding.BindModel(cmdType, subCla, parentPostExec);
             subBinding._parentBinding = binding;
 
@@ -330,33 +334,6 @@ namespace Zyborg.CLI.Binder
 
             binding._postExecActions.Add(() => HandleCommand(subCla, subBinding, m,
                     () => subBinding.GetModel()));
-
-/*
-            
-            var subModelType = typeof(CommandLineModel<>).MakeGenericType(cmdType);
-            var subModelBuild = subModelType.GetTypeInfo().GetMethod(nameof(Build));
-            var subModelSetCLA = subModelType.GetTypeInfo().GetMethod(nameof(SetCLA),
-                    BindingFlags.NonPublic | BindingFlags.Static);
-            var subModelInstance = subModelType.GetTypeInfo().GetProperty(nameof(Instance));
-
-            //var subModel = Apply(default(T), subCla);
-
-            // When a sub-command is specified, its OnExecute handler is invoked instead of the
-            // parent's so we inject a post-exec action to invoke the parent's post-exec actions
-            Action parentPostExec = () => model.PostExec();
-            var subModel = subModelBuild.Invoke(null, new object[] { subCla, parentPostExec});
-
-            // This is already invoked by Apply which is invoke by Build
-            //subModelSetCLA.Invoke(null, new object[] { subModel, cmdType.GetTypeInfo()
-            //        .GetCustomAttribute<CommandLineApplicationAttribute>() });
-
-            // We need to make sure the command name from the Command attr is preserved  after
-            // processing of the optional CLA attr on the subclass which may have its own name
-            subCla.Name = cmdName;
-
-            model._postExecActions.Add(() => HandleCommand(subCla, model, m,
-                    () => subModelInstance.GetValue(subModel)));
-*/
         }
 
         static void HandleCommand(CommandLineApplication cla, CommandLineBinding binding,
@@ -365,8 +342,6 @@ namespace Zyborg.CLI.Binder
             if (!binding._executed)
                 return;
 
-//!Console.WriteLine("HANDLING COMMAND! " + m.Name);
-            
             if (m is MethodInfo)
             {
                 var mi = (MethodInfo)m;
@@ -434,9 +409,9 @@ namespace Zyborg.CLI.Binder
                 template = $"--{m.Name.ToLower()}";
 
             // See if there is an optional configuration method for this option
-            var onConfigName = $"{m.Name}{OnConfigureMethodSuffix}";
+            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
-                    onConfigName, OnConfigureOptionParams);
+                    onConfigName, OnBindOptionParams);
 
             // Add the option based on whether there is a config method
             CommandOption co;
@@ -500,9 +475,9 @@ namespace Zyborg.CLI.Binder
         {
             var a = (ArgumentAttribute)att;
 
-            var onConfigName = $"{m.Name}{OnConfigureMethodSuffix}";
+            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
-                    onConfigName, OnConfigureArgumentParams);
+                    onConfigName, OnBindArgumentParams);
 
             CommandArgument ca;
             if (onConfigMeth != null)
@@ -559,9 +534,9 @@ namespace Zyborg.CLI.Binder
                 return;
 
             var a = (RemainingArgumentsAttribute)m.GetCustomAttribute(typeof(RemainingArgumentsAttribute));
-            var onConfigName = $"{m.Name}{OnConfigureMethodSuffix}";
+            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
-                    onConfigName, OnConfigureRemainingArgumentsParams);
+                    onConfigName, OnBindRemainingArgumentsParams);
 
             if (onConfigMeth != null)
             {
