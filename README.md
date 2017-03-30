@@ -4,6 +4,11 @@ Zyborg.CLI
 Extensions to the command-line interface (CLI) support found in
 [Microsoft.Extensions.CommandLineUtils](https://www.nuget.org/packages/Microsoft.Extensions.CommandLineUtils/) (CLU).
 
+[![Build status](https://ci.appveyor.com/api/projects/status/fns2a2ew0bv1mdkk?svg=true)](https://ci.appveyor.com/project/ebekker/zyborg-cli)
+[![NuGet](https://img.shields.io/nuget/v/Zyborg.CLI.Binder.svg)](https://www.nuget.org/packages/Zyborg.CLI.Binder/)
+
+---
+
 ## Zyborg.CLI.Binder
 
 The Binder package provides support for CLI model-binding, That is, functionality to define a CLI
