@@ -101,6 +101,43 @@ namespace Zyborg.CLI.Binder.Models
         }
     }
 
+    public class BasicOnBind1
+    {
+        public CommandOption _opt1OnBindConfig;
+        public CommandArgument _arg1OnBindConfig;
+        public CommandLineApplication _cmd1OnBindConfig;
+
+        [Option]
+        public string Opt1
+        { get; set; }
+
+        public void Opt1_OnBind(CommandOption config)
+        {
+            _opt1OnBindConfig = config;
+        }
+
+        [Argument]
+        public string Arg1
+        { get; set; }
+
+        public void Arg1_OnBind(CommandArgument config)
+        {
+            _arg1OnBindConfig = config;
+        }
+
+        [Command]
+        public SubCommand1 Cmd1
+        { get; set; }
+
+        public void Cmd1_OnBind(CommandLineApplication config)
+        {
+            _cmd1OnBindConfig = config;
+        }
+
+        public class SubCommand1
+        { }
+    }
+
     public class BasicOnInit1
     {
         public bool _onInitInvoked;

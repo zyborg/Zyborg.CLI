@@ -251,6 +251,15 @@ namespace Zyborg.CLI.Binder
         }
 
         [Fact]
+        public void TestBasicOnBind()
+        {
+            var b1 = CommandLineBinding<BasicOnBind1>.Build();
+            Assert.NotNull(b1.Model._opt1OnBindConfig);
+            Assert.NotNull(b1.Model._arg1OnBindConfig);
+            Assert.NotNull(b1.Model._cmd1OnBindConfig);
+        }
+
+        [Fact]
         public void TestBasicOnInit()
         {
             var b1 = CommandLineBinding<BasicOnInit1>.Build();
