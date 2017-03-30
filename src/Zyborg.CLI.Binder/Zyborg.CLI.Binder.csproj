@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!--
+    - Ref:  https://docs.microsoft.com/en-us/dotnet/articles/core/tools/project-json-to-csproj
+    -->
+
   <PropertyGroup>
     <VersionPrefix>0.5.0</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
@@ -7,6 +11,40 @@
     <AssemblyName>Zyborg.CLI.Binder</AssemblyName>
     <PackageId>Zyborg.CLI.Binder</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <!--
+    - Resolve versioning information in concert with AppVeyor environment and
+    - also verifies that the base version info here agrees with the AV config
+    -->
+  <PropertyGroup>
+    <BaseVersion>0.5.0</BaseVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">
+    <FullVersion>$(BaseVersion).0</FullVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">
+    <FullVersion>$(BaseVersion).$(APPVEYOR_BUILD_NUMBER)</FullVersion>
+  </PropertyGroup>
+  <Target Name="CheckAppVeyorVersion" Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''" BeforeTargets="Build">
+    <Error Condition="$(FullVersion)!=$(APPVEYOR_BUILD_VERSION)" Text="***********************************************" />
+    <Error Condition="$(FullVersion)!=$(APPVEYOR_BUILD_VERSION)" Text="** AppVeyor version does not match BaseVersion!" />
+    <Error Condition="$(FullVersion)!=$(APPVEYOR_BUILD_VERSION)" Text="***********************************************" />
+  </Target>
+
+  <PropertyGroup>
+    <AssemblyName>Zyborg.CLI.Binder</AssemblyName>
+    <AssemblyTitle>CLI Parsing Model Binder</AssemblyTitle>
+    <AssemblyVersion>$(FullVersion)</AssemblyVersion>
+    <Authors>https://github.com/zyborg/Zyborg.CLI/graphs/contributors</Authors>
+    <Company>https://github.com/zyborg</Company>
+    <Product>Zyborg.CLI</Product>
+    <Copyright>Copyright © Eugene Bekker.  All rights reserved.  Licensed under the MIT License.</Copyright>
+    <PackageProjectUrl>https://github.com/zyborg/Zyborg.CLI</PackageProjectUrl>
+    <Version>$(FullVersion)</Version>
+    <FileVersion>$(FullVersion)</FileVersion>
+    <Description>Model-driven CLI parser implemented atop of Microsoft.Extensions.CommandLineUtils (M.E.CLU)</Description>
+    <PackageLicenseUrl>https://github.com/zyborg/Zyborg.CLI/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
