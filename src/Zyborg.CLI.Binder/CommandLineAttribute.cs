@@ -24,4 +24,8 @@ namespace Zyborg.CLI.Binder
 
         public bool AllowArgumentSeparator
         { get; set; }
+
+        public bool ThrowOnUnexpectedArg
+        { get; set; } = true;
+    }
 }

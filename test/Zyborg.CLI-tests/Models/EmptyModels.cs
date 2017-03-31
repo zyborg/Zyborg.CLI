@@ -1,5 +1,6 @@
 namespace Zyborg.CLI.Binder.Models
 {
+    [CommandLine(ThrowOnUnexpectedArg = false)]
     public class EmptyModel1
     { }
 
@@ -8,6 +9,7 @@ namespace Zyborg.CLI.Binder.Models
     public class EmptyModel2
     { }
 
+    [CommandLine(ThrowOnUnexpectedArg = false)]
     [HelpOption("-h|-?|--help")]
     public class HelpfulEmptyModel
     { }

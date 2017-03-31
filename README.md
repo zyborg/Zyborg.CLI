@@ -224,7 +224,7 @@ properties.
 > * `Description` - provides a top-level command description or description for each sub-command
 >   which are used to generate help messages
 > * `AllowArgumentSeparator` - defaults to `false`
-> * `ThrowOnUnexpectedArg` - defaults to `false`
+> * `ThrowOnUnexpectedArg` - defaults to `true`
 
 #### `HelpOption` Attribute
 
@@ -270,6 +270,9 @@ the `CommandLine` attribute to define sub-command details.  Some details
 overlap with properties of this attribute which are used to override the class-level
 defaults.
 
+> * `Name` - if not specified, and not specified by the custom class' `CommandLine`
+>   attribute, a default name is resolved based on the member name
+> * `ThrowOnUnexpectedArg` - default to `true`
 
 #### `Option` Attribute
 

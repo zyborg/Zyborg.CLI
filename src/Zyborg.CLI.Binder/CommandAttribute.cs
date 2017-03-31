@@ -18,6 +18,6 @@ namespace Zyborg.CLI.Binder
         { get; }
 
         public bool ThrowOnUnexpectedArg
-        { get; set; }
+        { get; set; } = true; // Defaults to true to match CLU default behavior
     }
 }

@@ -198,6 +198,7 @@ namespace Zyborg.CLI.Binder.Models
         }
     }
 
+    [CommandLine(ThrowOnUnexpectedArg = false)]
     public class BasicRemainingArgs1
     {
         [Option]
@@ -217,6 +218,7 @@ namespace Zyborg.CLI.Binder.Models
         { get; set; }
     }
     
+    [CommandLine(ThrowOnUnexpectedArg = false)]
     public class BasicRemainingArgs2
     {
         public IEnumerable<string> _theRest;
@@ -228,6 +230,7 @@ namespace Zyborg.CLI.Binder.Models
         }
     }
     
+    [CommandLine(ThrowOnUnexpectedArg = false)]
     public class BasicRemainingArgs3
     {
         [RemainingArguments]
