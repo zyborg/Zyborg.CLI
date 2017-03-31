@@ -26,9 +26,9 @@
     <FullVersion>$(BaseVersion).$(APPVEYOR_BUILD_NUMBER)</FullVersion>
   </PropertyGroup>
   <Target Name="ShowFullVersion" BeforeTargets="Build">
-    <Message Text="*********************************************" />
-    <Message Text="** Resolved full version as $(FullVersion)" />
-    <Message Text="*********************************************" />
+    <Message Importance="high" Text="*********************************************" />
+    <Message Importance="high" Text="** Resolved full version as $(FullVersion)" />
+    <Message Importance="high" Text="*********************************************" />
   </Target>
 
   <Target Name="CheckAppVeyorVersion" Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''" BeforeTargets="Build">
