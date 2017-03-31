@@ -94,6 +94,7 @@ namespace Zyborg.CLI.Binder
             };
 
         internal CommandLineBinding _parentBinding;
+        internal List<CommandLineBinding> _childBindings = new List<CommandLineBinding>();
 
         internal CommandLineApplication _cla;
         internal HelpOptionAttribute _helpOption;
@@ -117,7 +118,12 @@ namespace Zyborg.CLI.Binder
         public TextWriter Out
         {
             get { return _cla?.Out; }
-            set { if (_cla != null) _cla.Out = value; }
+            set
+            {
+                if (_cla != null) _cla.Out = value;
+                foreach (var b in _childBindings)
+                    b.Out = value;
+            }
         }
 
         /// <summary>
@@ -126,7 +132,12 @@ namespace Zyborg.CLI.Binder
         public TextWriter Error
         {
             get { return _cla?.Error; }
-            set { if (_cla != null) _cla.Error = value; }
+            set
+            {
+                if (_cla != null) _cla.Error = value;
+                foreach (var b in _childBindings)
+                    b.Error = value;
+            }
         }
 
         /// <summary>
@@ -355,6 +366,7 @@ namespace Zyborg.CLI.Binder
             Action parentPostExec = () => binding.PostExec(true);
             var subBinding = CommandLineBinding.BindModel(cmdType, subCla, parentPostExec);
             subBinding._parentBinding = binding;
+            binding._childBindings.Add(subBinding);
 
             // This is already invoked by Apply which is invoke by Build
             //subModelSetCLA.Invoke(null, new object[] { subModel, cmdType.GetTypeInfo()
