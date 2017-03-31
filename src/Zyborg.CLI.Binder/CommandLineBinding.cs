@@ -184,10 +184,18 @@ namespace Zyborg.CLI.Binder
             return null;
         }
 
-        internal static CommandLineBinding BindModel(Type modelType, CommandLineApplication cla = null, Action postExec = null)
+        internal static CommandLineBinding BindModel(Type modelType,
+                CommandLineApplication cla = null, object parentModel = null,
+                Action postExec = null)
         {
+            object model;
+            if (parentModel != null && modelType.GetTypeInfo().GetConstructor(
+                        new[] { parentModel.GetType() }) != null)
+                model = Activator.CreateInstance(modelType, parentModel);
+            else
+                model = Activator.CreateInstance(modelType);
+
             var bindingType = typeof(CommandLineBinding<>).MakeGenericType(modelType);
-            var model = Activator.CreateInstance(modelType);
             var binding = (CommandLineBinding)Activator.CreateInstance(bindingType);
             binding.SetModel(model);
 
@@ -359,12 +367,12 @@ namespace Zyborg.CLI.Binder
                 configAction = cla => onConfigMeth.Invoke(binding.GetModel(), new[] { cla });
 
             var subCla = binding._cla.Command(cmdName, configAction, a.ThrowOnUnexpectedArg);
-            var subBindingType = typeof(CommandLineBinding<>).MakeGenericType(cmdType);
 
             // When a sub-command is specified, its OnExecute handler is invoked instead of the
             // parent's so we inject a post-exec action to invoke the parent's post-exec actions
             Action parentPostExec = () => binding.PostExec(true);
-            var subBinding = CommandLineBinding.BindModel(cmdType, subCla, parentPostExec);
+            var subBinding = CommandLineBinding.BindModel(cmdType, subCla,
+                    binding.GetModel(), parentPostExec);
             subBinding._parentBinding = binding;
             binding._childBindings.Add(subBinding);
 
