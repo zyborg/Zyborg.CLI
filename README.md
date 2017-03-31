@@ -20,44 +20,55 @@ set of CLI arguments against that configuration to an instance of the model clas
 The typical usage of the CLU package goes something like this:
 
 ```csharp
-  public static void Main(params string[] args)
-  {
+public static void Main(params string[] args)
+{
     // Define the root command configuration
     var cla = new CommandLineApplication(throwOnUnexpectedArg: false);
-    
+
     // Add various single-value or multi-value options or no-value options (flags)
     CommandOption greeting = cla.Option("-$|-g|--greeting <greeting>",
-        "The greeting to display.",
-        CommandOptionType.SingleValue);
-    CommandOption uppercase = commandLineApplication.Option("-u | --uppercase",
-        "Display the greetee in uppercase.",
-        CommandOptionType.NoValue);
-    
-    // Add some named arguments and/or child commands (here we combine both)
-    CommandArgument names;
-    cla.Command("name", (childCla) =>
-        names = childCla.Argument(
-            "fullname",
-            "Enter the full name of the person to be greeted.",
-            multipleValues: true));
-    
-    // Enable built-in support for nicely-formatted help
-    cla.HelpOption("-? | -h | --help");
+            "The greeting to display.",
+            CommandOptionType.SingleValue);
+    CommandOption uppercase = cla.Option("-u|--uppercase",
+            "Display the name in uppercase.",
+            CommandOptionType.NoValue);
 
-    // Define a handler for *resolving* the result of parsing the CLI args
-    // which usually entails interpretting all the possible values and
-    // combinations and invoking some action
-    cla.OnExecute(() =>
+    // Add some named arguments and/or child commands (here we combine both)
+    CommandArgument names = null;
+    cla.Command("name", (childCla) =>
     {
-        if (greeting.HasValue)
-            foreach (var n in names.Values)
-                Console.WriteLine(greeting.Value() + " "
-                        + (uppercase.HasValue() ? n.ToUpper() : n));
+        childCla.HelpOption("--help-me");
+        names = childCla.Argument(
+                "names",
+                "Enter the names of the people to be greeted.",
+                multipleValues: true);
+
+        // Define a handler for *resolving* the result of parsing the CLI args
+        // which usually entails interpretting all the possible values and
+        // combinations and invoking some action
+        childCla.OnExecute(() =>
+        {
+            cla.Out.WriteLine("Executing...");
+            if (greeting.HasValue())
+            {
+                cla.Out.WriteLine("Greetings to the following:");
+                foreach (var n in names.Values)
+                {
+                    cla.Out.WriteLine(greeting.Value() + " "
+                            + (uppercase.HasValue() ? n.ToUpper() : n));
+                }
+            }
+
+            return 0;
+        });
     });
+
+    // Enable built-in support for nicely-formatted help
+    cla.HelpOption("-?|-h|--help");
 
     // Apply the configuration to interpret the CLI args
     cla.Execute(args);
-  }
+}
 ```
 <sup>Sample adapted from [this helpful article](https://msdn.microsoft.com/en-us/magazine/mt763239.aspx?f=255&MSPPError=-2147217396#code-snippet-2).
 There are a few contrived elements in this example but they illustrate
@@ -87,28 +98,42 @@ public class MyCommandModel
     public string Greeting
     { get; set; }
 
-    [Option("-u|--uppercase", "Display the greeting in uppercase.")]
+    [Option("-u|--uppercase", "Display the name in uppercase.")]
     public bool UpperCase
     { get; set; }
 
     [Command("name")]
     public NameCommandModel Name
     { get; set; }
-
-    public void DoSomething()
-    {
-        if (!string.IsNullOrEmpty(Greeting) && Name?.Names != null)
-            foreach (var n in Name.Names)
-                Console.WriteLine(Greeting + " "
-                        (UpperCase ? n.ToUpper() : n));
-    }
 }
 
+[HelpOptionAttribute("--help-me")]
 public class NameCommandModel
 {
-    [Argument]
+    private DocSampleModel _parent;
+
+    public NameCommandModel(DocSampleModel parent)
+    {
+        _parent = parent;
+    }
+
+    [Argument(Description = "Enter the names of the people to be greeted.")]
     public string[] Names
-    { get; set; }
+    { get; set; } = new string[0];
+
+    public void Command_OnExec(CommandLineApplication cla)
+    {
+        cla.Out.WriteLine("Executing...");
+        if (!string.IsNullOrEmpty(_parent.Greeting))
+        {
+            cla.Out.WriteLine("Greetings to the following:");
+            foreach (var n in Names)
+            {
+                cla.Out.WriteLine(_parent.Greeting + " "
+                        + (_parent.UpperCase ? n.ToUpper() : n));
+            }
+        }
+    }
 }
 
 public static void Main(params string[] args)
