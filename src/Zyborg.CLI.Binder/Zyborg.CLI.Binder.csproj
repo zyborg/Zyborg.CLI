@@ -25,7 +25,7 @@
   <PropertyGroup Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">
     <FullVersion>$(BaseVersion).$(APPVEYOR_BUILD_NUMBER)</FullVersion>
   </PropertyGroup>
-  <Target Name="CheckAppVeyorVersion" BeforeTargets="Build">
+  <Target Name="ShowFullVersion" BeforeTargets="Build">
     <Message Text="*********************************************" />
     <Message Text="** Resolved full version as $(FullVersion)" />
     <Message Text="*********************************************" />
