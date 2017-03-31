@@ -527,20 +527,62 @@ namespace Zyborg.CLI.Binder
         {
             var a = (ArgumentAttribute)att;
 
-            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
+            // Resolve the option value type
+            Type valueType = null;
+            if (m is PropertyInfo)
+            {
+                var pi = (PropertyInfo)m;
+                valueType = pi.PropertyType;
+            }
+            else if (m is MethodInfo)
+            {
+                var mi = (MethodInfo)m;
+                var miParams = mi.GetParameters();
+
+                if (miParams.Length == 1 || (miParams.Length == 2
+                        && typeof(CommandLineBinding).GetTypeInfo().IsAssignableFrom(miParams[1].ParameterType)))
+                    valueType = miParams[0].ParameterType;
+                else if (miParams.Length > 0)
+                    throw new NotSupportedException("method signature is not supported");
+            }
+
+            // Figure out the argument arity based on value type if it wasn't explicitly specified
+            var multi = a.MultipleValues;
+            if (multi == null && valueType != null)
+            {
+                // Try to resolve the option type based on the property type
+                if (valueType.GetTypeInfo().IsAssignableFrom(typeof(string)))
+                {
+                    multi = false;
+                }
+                else if (valueType.GetTypeInfo().IsAssignableFrom(typeof(string[])))
+                {
+                    multi = true;
+                }
+                else
+                    throw new NotSupportedException("option value type is not supported");
+            }
+
+            // Resolve the arg name if it wasn't explicitly specified
+            var argName = a.Name;
+            if (string.IsNullOrEmpty(argName))
+                argName = m.Name.ToLower();
+
+            // See if there is an optional configuration method for this option
+            var onConfigName = $"{m.Name}{MemberOnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
                     onConfigName, OnBindArgumentParams);
 
             CommandArgument ca;
             if (onConfigMeth != null)
             {
-                ca = binding._cla.Argument(a.Name, a.Description,
+                ca = binding._cla.Argument(argName, a.Description,
                         cmdArg => onConfigMeth.Invoke(binding.GetModel(), new[] { cmdArg }),
-                        a.MultipleValues);
+                        multi.GetValueOrDefault());
             }
             else
             {
-                ca = binding._cla.Argument(a.Name, a.Description, a.MultipleValues);
+                ca = binding._cla.Argument(argName, a.Description, multi.GetValueOrDefault());
             }
 
             binding._postExecActions.Add(() => { HandleArgument(ca, binding, m); });
