@@ -21,7 +21,24 @@ namespace Zyborg.CLI.Binder
         /// The method name should match exactly and the method should take a single
         /// parameter of type <see cref="CommandLineApplication"/>.
         /// </summary>
-        public const string OnInitMethodName = "Model_OnInit";
+        public const string ModelOnInitMethodName = "Model_OnInit";
+        /// <summary>
+        /// Name of optional method on the model class that would get invoked
+        /// after executing CLI parsing.
+        /// </summary>
+        /// <summary>
+        /// The method name should match exactly and the method should take a single
+        /// parameter of type <see cref="CommandLineApplication"/>.
+        /// <para>
+        /// The difference between this handler and the <see cref="Model_OnExec"/>
+        /// handler is that in a model with nested child sub-commands, only the most
+        /// deeply nested child command that is resolved for the parsed CLI arguments
+        /// will have its <c>Command_OnExec</c> invoked, whereas the <c>Model_OnExec</c>
+        /// handler for the nested child command and its parent (and its parent, etc.)
+        /// will be invoked, in the order of most deeply out to the root.
+        /// </para>
+        /// </summary>
+        public const string CommandOnExecMethodName = "Command_OnExec";
         /// <summary>
         /// Name of optional method on the model class that would get invoked
         /// after executing CLI parsing.
@@ -30,7 +47,7 @@ namespace Zyborg.CLI.Binder
         /// The method name should match exactly and the method should take a single
         /// parameter of type <see cref="CommandLineApplication"/>.
         /// </summary>
-        public const string OnExecMethodName = "Model_OnExec";
+        public const string ModelOnExecMethodName = "Model_OnExec";
         /// <summary>
         /// Suffix used to compute the name of optional methods on the model class that would
         /// get invoked after configing bound members.
@@ -47,7 +64,7 @@ namespace Zyborg.CLI.Binder
         ///   <item>RemainingArguments - <see cref="CommandLineApplication"/></item>
         /// </list>
         /// </summary>
-        public const string OnBindMethodSuffix = "_OnBind";
+        public const string MemberOnBindMethodSuffix = "_OnBind";
 
         #endregion -- Constants --
         
@@ -121,14 +138,31 @@ namespace Zyborg.CLI.Binder
         
         #region -- Methods --
 
-        internal int PostExec()
+        internal int PostExec(bool isParent)
         {
             _executed = true;
             foreach (var action in _postExecActions)
                 action();
 
+            int? ret;
+            if (!isParent)
+            {
+                ret = InvokeExec(CommandOnExecMethodName);
+                if (ret != null)
+                    return ret.Value;
+            }
 
-            var onExecMeth = GetModel().GetType().GetTypeInfo().GetMethod(OnExecMethodName, OnExecParams);
+            ret = InvokeExec(ModelOnExecMethodName);
+            if (ret != null)
+                return ret.Value;
+
+
+            return 0;
+        }
+
+        internal int? InvokeExec(string methodName)
+        {
+            var onExecMeth = GetModel().GetType().GetTypeInfo().GetMethod(methodName, OnExecParams);
             if (onExecMeth != null)
             {
                 var ret = onExecMeth.Invoke(GetModel(), new[] { _cla });
@@ -136,7 +170,7 @@ namespace Zyborg.CLI.Binder
                     return (int)ret;
             }
 
-            return 0;
+            return null;
         }
 
         internal static CommandLineBinding BindModel(Type modelType, CommandLineApplication cla = null, Action postExec = null)
@@ -196,10 +230,10 @@ namespace Zyborg.CLI.Binder
 
             binding._cla.OnExecute(() =>
             {
-                return binding.PostExec();
+                return binding.PostExec(false);
             });
 
-            var onInitMeth = modelType.GetTypeInfo().GetMethod(OnInitMethodName, OnInitParams);
+            var onInitMeth = modelType.GetTypeInfo().GetMethod(ModelOnInitMethodName, OnInitParams);
             if (onInitMeth != null)
                 onInitMeth.Invoke(model, new[] { binding._cla });
         }
@@ -304,7 +338,7 @@ namespace Zyborg.CLI.Binder
             }
 
             // See if there is an optional configuration method for this sub-command
-            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
+            var onConfigName = $"{m.Name}{MemberOnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
                     onConfigName, OnBindCommandParams);
 
@@ -318,7 +352,7 @@ namespace Zyborg.CLI.Binder
 
             // When a sub-command is specified, its OnExecute handler is invoked instead of the
             // parent's so we inject a post-exec action to invoke the parent's post-exec actions
-            Action parentPostExec = () => binding.PostExec();
+            Action parentPostExec = () => binding.PostExec(true);
             var subBinding = CommandLineBinding.BindModel(cmdType, subCla, parentPostExec);
             subBinding._parentBinding = binding;
 
@@ -407,7 +441,7 @@ namespace Zyborg.CLI.Binder
                 template = $"--{m.Name.ToLower()}";
 
             // See if there is an optional configuration method for this option
-            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
+            var onConfigName = $"{m.Name}{MemberOnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
                     onConfigName, OnBindOptionParams);
 
@@ -532,7 +566,7 @@ namespace Zyborg.CLI.Binder
                 return;
 
             var a = (RemainingArgumentsAttribute)m.GetCustomAttribute(typeof(RemainingArgumentsAttribute));
-            var onConfigName = $"{m.Name}{OnBindMethodSuffix}";
+            var onConfigName = $"{m.Name}{MemberOnBindMethodSuffix}";
             var onConfigMeth = binding.GetModel().GetType().GetTypeInfo().GetMethod(
                     onConfigName, OnBindRemainingArgumentsParams);
 

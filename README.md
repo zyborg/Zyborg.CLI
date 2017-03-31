@@ -202,9 +202,20 @@ parameter value of type `CommandLineApplication`.
 Event        | Method Name
 -------------|---------------
 Post-Bind    | `Model_OnInit`
+Post-Exec    | `Command_OnExec`
 Post-Exec    | `Model_OnExec`
 
-The Post-Exec method may also optionally define an integer return value, in which case
+The Post-Bind method is invoked on each model class (including child model classes
+referenced by child sub-commands) after they are *bound* to the generated configuration.
+The Post-Exec metohds are invoked after the associated model is executed against an
+input set of CLI arguments.  The difference between the two types of Post-Exec handlers
+comes into play when using child sub-commands.  If you define a command line model that
+includes child sub-commands (and they in turn may also define their own children, etc.)
+then the `Command_OnExec` handler will only be invoked on the most deeply-nested child
+command model class.  However, the `Model_OnExec` will get invoked on that child, as
+well as all its parents and grand-parents in reverse nesting order out to the root.
+
+The Post-Exec methods may also optionally define an integer return value, in which case
 the result of invoking that handler will be returned as the ultimate result of the model
 execution.
 
