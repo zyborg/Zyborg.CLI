@@ -149,6 +149,10 @@ namespace Zyborg.CLI.Binder
                         "names",
                         "Enter the names of the people to be greeted.",
                         multipleValues: true);
+
+                // Define a handler for *resolving* the result of parsing the CLI args
+                // which usually entails interpretting all the possible values and
+                // combinations and invoking some action
                 childCla.OnExecute(() =>
                 {
                     cla.Out.WriteLine("Executing...");
@@ -169,9 +173,6 @@ namespace Zyborg.CLI.Binder
             // Enable built-in support for nicely-formatted help
             cla.HelpOption("-?|-h|--help");
 
-            // Define a handler for *resolving* the result of parsing the CLI args
-            // which usually entails interpretting all the possible values and
-            // combinations and invoking some action
             cla.OnExecute(() =>
             {
                 cla.Out.WriteLine("Executing...");

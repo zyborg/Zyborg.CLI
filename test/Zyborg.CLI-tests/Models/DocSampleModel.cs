@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Zyborg.CLI.Binder.Models
@@ -44,7 +42,6 @@ namespace Zyborg.CLI.Binder.Models
         [Argument(Description = "Enter the names of the people to be greeted.")]
         public string[] Names
         { get; set; } = new string[0];
-
 
         public void Command_OnExec(CommandLineApplication cla)
         {
