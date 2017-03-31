@@ -140,7 +140,6 @@ public static void Main(params string[] args)
 {
     var cliBinding = CommandLineBinding<MyCommandModel>.Build();
     cliBinding.Execute(args);
-    cliBinding.Model.DoSomething();
 }
 ```
 The basic idea is simple.
