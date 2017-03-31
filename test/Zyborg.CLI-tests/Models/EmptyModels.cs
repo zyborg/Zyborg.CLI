@@ -4,7 +4,7 @@ namespace Zyborg.CLI.Binder.Models
     { }
 
 
-    [CommandLineApplication]
+    [CommandLine(ThrowOnUnexpectedArg = false)]
     public class EmptyModel2
     { }
 
@@ -13,7 +13,8 @@ namespace Zyborg.CLI.Binder.Models
     { }
 
 
-    [CommandLineApplication(FullName = nameof(VersionedEmptyModel))]
+    [CommandLine(FullName = nameof(VersionedEmptyModel),
+            ThrowOnUnexpectedArg = false)]
     [VersionOption("-v|--version",
             ShortVersion = SVER,
             LongVersion = LVER)]
@@ -23,7 +24,8 @@ namespace Zyborg.CLI.Binder.Models
         public const string LVER = "Version " + SVER + " (Snappy Turtle)";
     }
 
-    [CommandLineApplication(FullName = nameof(DynamicallyVersionedEmptyModel))]
+    [CommandLine(FullName = nameof(DynamicallyVersionedEmptyModel),
+            ThrowOnUnexpectedArg = false)]
     [VersionOption("-v|--version")]
     public class DynamicallyVersionedEmptyModel
     {

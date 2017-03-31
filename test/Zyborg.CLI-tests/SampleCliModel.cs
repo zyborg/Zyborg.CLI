@@ -4,7 +4,7 @@ using Microsoft.Extensions.CommandLineUtils;
 namespace Zyborg.CLI.Binder
 {
  
-    [CommandLineApplication("SampleApp", FullName = "Sample Application",
+    [CommandLine("SampleApp", FullName = "Sample Application",
             Description = "This is a sample CLI application.")]
     [HelpOption("-h|--help")]
     [VersionOption("-v|--version",

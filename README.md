@@ -79,7 +79,7 @@ The Binder package reorients this imperative approach into a declarative model.
 Here is the same configuration as above in the declarative model style:
 
 ```csharp
-[CommandLineApplication(ThrowOnUnexpectedArg = false)]
+[CommandLine(ThrowOnUnexpectedArg = false)]
 [HelpOption("-?|-h|--help")]
 public class MyCommandModel
 {
@@ -210,7 +210,7 @@ execution.
 
 ### Model-decorating Attributes
 
-#### `CommandLineApplication` Attribute
+#### `CommandLine` Attribute
 
 Class-level attribute used to decorate command model classes to specify various details
 about the corresponding command.  All the attribute properties are optional, and the
@@ -266,14 +266,10 @@ to the `LongtVersion` property of the `VersionOption` attribute at the model cla
 Member-level (Property or Method) attribute to define and capture a child sub-command.
 The member should be able to receive a value of a custom user type that defines the
 configuration of the sub-command.  The custom type can optionally be decorated with
-the `CommandLineApplication` attribute to define sub-command details.  Some details
+the `CommandLine` attribute to define sub-command details.  Some details
 overlap with properties of this attribute which are used to override the class-level
 defaults.
 
-> * `Name` - if not specified, and not specified by the custom class'
-> * `CommandLineApplication` attribute, a default name is resolved based on the
->   member name
-> * `ThrowOnUnexpectedArg` - default to false
 
 #### `Option` Attribute
 

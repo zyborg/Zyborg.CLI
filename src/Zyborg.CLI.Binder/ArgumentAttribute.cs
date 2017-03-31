@@ -9,9 +9,9 @@ namespace Zyborg.CLI.Binder
         public ArgumentAttribute()
         { }
 
-        public ArgumentAttribute(string description)
+        public ArgumentAttribute(string name)
         {
-            Description = description;
+            Name = name;
         }
 
         public ArgumentAttribute(string name, string description)
@@ -21,12 +21,12 @@ namespace Zyborg.CLI.Binder
         }
 
         public string Name
-        { get; }
+        { get; set; }
 
         public string Description
-        { get; }
+        { get; set; }
 
-        public bool MultipleValues
+        public bool? MultipleValues
         { get; set; }
     }
 }

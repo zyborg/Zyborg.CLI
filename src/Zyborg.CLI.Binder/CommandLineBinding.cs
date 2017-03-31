@@ -90,8 +90,6 @@ namespace Zyborg.CLI.Binder
         internal IList<Action> _bindingActions = new List<Action>();
         internal IList<Action> _postExecActions = new List<Action>();
 
-        internal MethodInfo _onExecMethod;
-
         #endregion -- Fields --
         
         #region -- Properties --
@@ -166,7 +164,7 @@ namespace Zyborg.CLI.Binder
             if (postExec != null)
                 binding._postExecActions.Add(postExec);
 
-            SetCLA(binding, modelType.GetTypeInfo().GetCustomAttribute<CommandLineApplicationAttribute>());
+            SetCLA(binding, modelType.GetTypeInfo().GetCustomAttribute<CommandLineAttribute>());
 
             foreach (var a in modelType.GetTypeInfo().GetCustomAttributes())
             {
@@ -208,9 +206,9 @@ namespace Zyborg.CLI.Binder
 
         static void SetCLA(CommandLineBinding binding, Attribute att)
         {
-            var claAtt = (CommandLineApplicationAttribute)att;
+            var claAtt = (CommandLineAttribute)att;
             if (claAtt == null)
-                claAtt = new CommandLineApplicationAttribute();
+                claAtt = new CommandLineAttribute();
 
             if (binding._cla == null)
                 binding._cla = new CommandLineApplication(claAtt.ThrowOnUnexpectedArg);

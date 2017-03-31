@@ -23,9 +23,9 @@ namespace Zyborg.CLI.Binder
         public OptionAttribute()
         { }
 
-        public OptionAttribute(string description)
+        public OptionAttribute(string template)
         {
-            Description = description;
+            Template = template;
         }
 
         public OptionAttribute(string template, string description)

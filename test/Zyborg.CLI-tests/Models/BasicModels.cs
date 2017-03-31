@@ -4,7 +4,7 @@ using Microsoft.Extensions.CommandLineUtils;
 namespace Zyborg.CLI.Binder.Models
 {
 
-    [CommandLineApplication]
+    [CommandLine]
     [HelpOption("--help-me")]
     public class BasicSwitches
     {
@@ -24,7 +24,7 @@ namespace Zyborg.CLI.Binder.Models
     }
 
     [HelpOption(HELP_TEMPLATE)]
-    [CommandLineApplication("FOO",
+    [CommandLine("FOO",
                 ThrowOnUnexpectedArg = true)]
     public class BasicCommands
     {
@@ -50,7 +50,7 @@ namespace Zyborg.CLI.Binder.Models
         public SubCommand3 Sub3
         { get; }
 
-        [CommandLineApplication("FOOBAR")]
+        [CommandLine("FOOBAR")]
         public class SubCommand1
         {
             [Option]
@@ -58,7 +58,7 @@ namespace Zyborg.CLI.Binder.Models
             { get; set; }
         }
 
-        [CommandLineApplication("SUB2", FullName = "Sub Command #2",
+        [CommandLine("SUB2", FullName = "Sub Command #2",
                 Description = "This is the second sub command")]
         public class SubCommand2
         {
@@ -240,5 +240,4 @@ namespace Zyborg.CLI.Binder.Models
         public string[] TheRest3
         { get; set; }
     }
-    
 }
