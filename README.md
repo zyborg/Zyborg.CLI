@@ -1,8 +1,12 @@
 Zyborg.CLI
 ===
 
+This repo is now archived, please [McMaster.CommandLineUtils](https://github.com/natemcmaster/CommandLineUtils) for a very similar and more complete library.
+
 Extensions to the command-line interface (CLI) support found in
 [Microsoft.Extensions.CommandLineUtils](https://www.nuget.org/packages/Microsoft.Extensions.CommandLineUtils/) (CLU).
+
+:star: I appreciate your star, it helps me decide to which OSS projects I should allocate my spare time.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/fns2a2ew0bv1mdkk?svg=true)](https://ci.appveyor.com/project/ebekker/zyborg-cli)
 [![NuGet](https://img.shields.io/nuget/v/Zyborg.CLI.Binder.svg)](https://www.nuget.org/packages/Zyborg.CLI.Binder/)
