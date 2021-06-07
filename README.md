@@ -1,7 +1,7 @@
 Zyborg.CLI
 ===
 
-This repo is now archived, please [McMaster.CommandLineUtils](https://github.com/natemcmaster/CommandLineUtils) for a very similar and more complete library.
+***This repo is now archived, please [McMaster.CommandLineUtils](https://github.com/natemcmaster/CommandLineUtils) for a very similar and more complete library.***
 
 Extensions to the command-line interface (CLI) support found in
 [Microsoft.Extensions.CommandLineUtils](https://www.nuget.org/packages/Microsoft.Extensions.CommandLineUtils/) (CLU).
